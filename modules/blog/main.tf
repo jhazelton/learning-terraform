@@ -1,18 +1,18 @@
-data "aws_ami" "app_ami" {
-  most_recent = true
+#data "aws_ami" "app_ami" {
+  #most_recent = true
 
-  filter {
-    name   = "name"
-    values = [var.ami_filter.name]
-  }
+  #filter {
+  #  name   = "name"
+  #  values = [var.ami_filter.name]
+  #}
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
+  #filter {
+  #  name   = "virtualization-type"
+  #  values = ["hvm"]
+  #}
 
-  owners = [var.ami_filter.owner]
-}
+  #owners = [var.ami_filter.owner]
+#}
 
 
 module "blog_vpc" {
