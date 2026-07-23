@@ -13,8 +13,8 @@ variable "ami_filter" {
   })
 
   default = {
-    name  = "bitnami-tomcat-*-x86_64-hvm-ebs-nami"
-    owner = "979382823631" # Bitnami
+    name  = "al2023-ami-2023*-x86_64"
+    owner = "amazon" # changed to amazon
   }
 }
 
