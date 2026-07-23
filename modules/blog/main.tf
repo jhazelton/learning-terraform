@@ -21,7 +21,7 @@ module "blog_vpc" {
   name = var.environment.name
   cidr = "${var.environment.network_prefix}.0.0/16"
 
-  azs             = ["us-east-1a","us-east-1b","us-west-1c"]
+  azs             = ["us-east-1a","us-east-1b","us-east-1c"]
   public_subnets  = ["${var.environment.network_prefix}.101.0/24", "${var.environment.network_prefix}.102.0/24", "${var.environment.network_prefix}.103.0/24"]
 
   tags = {
