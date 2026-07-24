@@ -88,28 +88,28 @@ module "blog_alb" {
 
 module "blog_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 6.0" # <-- Upgraded to modern v6 range
+  version = "~> 6.0"
 
   vpc_id = module.blog_vpc.vpc_id
   name   = "${var.environment.name}-blog"
 
-  # Configures inbound rules using the new v6 map structure
-  ingress_with_cidr_blocks = [
-    {
-      rule        = "https-443-tcp"
-      cidr_blocks = "0.0.0.0/0"
-    },
-    {
-      rule        = "http-80-tcp"
-      cidr_blocks = "0.0.0.0/0"
+  # The modern v6 format for inbound rules
+  ingress_rules = {
+    https = {
+      rule      = "https-443-tcp"
+      cidr_ipv4 = "0.0.0.0/0"
     }
-  ]
+    http = {
+      rule      = "http-80-tcp"
+      cidr_ipv4 = "0.0.0.0/0"
+    }
+  }
 
-  # Configures outbound rules using the new v6 map structure
-  egress_with_cidr_blocks = [
-    {
-      rule        = "all-all"
-      cidr_blocks = "0.0.0.0/0"
+  # The modern v6 format for outbound rules
+  egress_rules = {
+    all = {
+      rule      = "all-all"
+      cidr_ipv4 = "0.0.0.0/0"
     }
-  ]
+  }
 }
