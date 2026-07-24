@@ -32,7 +32,7 @@ module "blog_vpc" {
 
 module "blog_autoscaling" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "7.0"
+  version = "~> 7.0"  # <-- Downgraded to v7.x to support AWS Provider v5
 
   name                = "${var.environment.name}-blog"
   min_size            = var.asg_min
@@ -42,15 +42,10 @@ module "blog_autoscaling" {
   instance_type       = var.instance_type
   image_id            = data.aws_ami.app_ami.id
 
-  # This replaces the old target_group_arns line for compatibility with version 8.x
-  traffic_source_attachments = {
-    alb = {
-      traffic_source_identifier = module.blog_alb.target_groups["blog_tg"].arn
-      traffic_source_type       = "elbv2"
-    }
-  }
+  # THIS IS THE SIMPLER TARGET GROUP LISTING:
+  # It replaces the entire "traffic_source_attachments" block we added earlier
+  target_group_arns = [module.blog_alb.target_group_arns] 
 }
-
 
 module "blog_alb" {
   source  = "terraform-aws-modules/alb/aws"
