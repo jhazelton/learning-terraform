@@ -45,7 +45,7 @@ module "blog_autoscaling" {
   # This replaces the old target_group_arns line for compatibility with version 8.x
   traffic_source_attachments = {
     alb = {
-      traffic_source_identifier = module.blog_alb.target_group_arns
+      traffic_source_identifier = module.blog_alb.target_groups["blog_tg"].arn
       traffic_source_type       = "elbv2"
     }
   }
@@ -56,30 +56,32 @@ module "blog_alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 9.0"
 
-  name = "${var.environment.name}-blog-alb"
-
+  name               = "${var.environment.name}-blog-alb"
   load_balancer_type = "application"
-
   vpc_id             = module.blog_vpc.vpc_id
   subnets            = module.blog_vpc.public_subnets
   security_groups    = [module.blog_sg.security_group_id]
 
-  target_groups = [
-    {
+  # Modern v9 target group configuration (uses maps instead of lists)
+  target_groups = {
+    blog_tg = {
       name_prefix      = "${var.environment.name}-"
       backend_protocol = "HTTP"
       backend_port     = 80
       target_type      = "instance"
     }
-  ]
+  }
 
-  http_tcp_listeners = [
-    {
-      port               = 80
-      protocol           = "HTTP"
-      target_group_index = 0
+  # Modern v9 listener configuration (links directly to the map key above)
+  listeners = {
+    http = {
+      port     = 80
+      protocol = "HTTP"
+      forward = {
+        target_group_key = "blog_tg"
+      }
     }
-  ]
+  }
 
   tags = {
     Environment = var.environment.name
