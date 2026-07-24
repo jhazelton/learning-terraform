@@ -30,21 +30,27 @@ module "blog_vpc" {
   }
 }
 
-
 module "blog_autoscaling" {
   source  = "terraform-aws-modules/autoscaling/aws"
   version = "8.0"
 
-  name = "${var.environment.name}-blog"
-
+  name                = "${var.environment.name}-blog"
   min_size            = var.asg_min
   max_size            = var.asg_max
   vpc_zone_identifier = module.blog_vpc.public_subnets
-  target_group_arn    = module.blog_alb.target_group_arns
   security_groups     = [module.blog_sg.security_group_id]
   instance_type       = var.instance_type
   image_id            = data.aws_ami.app_ami.id
+
+  # This replaces the old target_group_arns line for compatibility with version 8.x
+  traffic_source_attachments = {
+    alb = {
+      traffic_source_identifier = module.blog_alb.target_group_arns
+      traffic_source_type       = "elbv2"
+    }
+  }
 }
+
 
 module "blog_alb" {
   source  = "terraform-aws-modules/alb/aws"
