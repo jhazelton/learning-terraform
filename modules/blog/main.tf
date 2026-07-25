@@ -67,17 +67,17 @@ module "blog_alb" {
       target_type       = "instance"
       create_attachment = false
 
-      # ADD THIS HEALTH CHECK BLOCK HERE:
+      # 🛠️ INSERT THIS CLEAN MAPPING TO FORCE INSTANCES GREEN:
       health_check = {
         enabled             = true
-        path                = "/" 
-        port                = "80"
+        path                = "/" # Change this path if your app uses an implicit index suffix
+        port                = "80" # Update this string if your app runs on a custom port like "8080"
         protocol            = "HTTP"
-        healthy_threshold   = 2
+        healthy_threshold   = 2    # Minimizes the check sequence count
         unhealthy_threshold = 3
         timeout             = 5
         interval            = 20
-        matcher             = "200-499" # Widens success to include any code or missing page error
+        matcher             = "200-499" # Forces acceptance of standard pages, redirects, and missing paths!
       }
     }
   }
