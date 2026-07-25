@@ -50,45 +50,6 @@ module "blog_autoscaling" {
 }
 
 module "blog_alb" {
-  source  = "terraform-aws-modules/alb/aws"
-
-  name               = "${var.environment.name}-blog-alb"
-  load_balancer_type = "application"
-  internal           = false
-  vpc_id             = module.blog_vpc.vpc_id
-  subnets            = module.blog_vpc.public_subnets
-  security_groups    = [module.blog_sg.id]
-
-  # Modern v9 target group configuration (uses maps instead of lists)
-  target_groups = {
-    blog_tg = {
-      name_prefix      = "${var.environment.name}-"
-      backend_protocol = "HTTP"
-      backend_port     = 80
-      target_type      = "instance"
-
-      # PUT THE FIX HERE INSIDE THE SUB-MODULE FILE:
-      create_attachment = false
-    }
-  }
-
-  # Modern v9 listener configuration (links directly to the map key above)
-  listeners = {
-    http = {
-      port     = 80
-      protocol = "HTTP"
-      forward = {
-        target_group_key = "blog_tg"
-      }
-    }
-  }
-
-  tags = {
-    Environment = var.environment.name
-  }
-}
-
-module "blog_alb" {
   source = "terraform-aws-modules/alb/aws"
 
   name               = "${var.environment.name}-blog-alb"
@@ -128,6 +89,38 @@ module "blog_alb" {
       forward = {
         target_group_key = "blog_tg"
       }
+    }
+  }
+}
+
+module "blog_sg" {
+  source = "terraform-aws-modules/security-group/aws"
+
+  vpc_id = module.blog_vpc.vpc_id
+  name   = "${var.environment.name}-blog"
+
+  # Official verified version 6 map format with explicit port matching boundaries
+  ingress_rules = {
+    https = {
+      from_port   = 443
+      to_port     = 443 # <-- Explicitly required target boundary
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+    http = {
+      from_port   = 80
+      to_port     = 80  # <-- Explicitly required target boundary
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
+
+  egress_rules = {
+    all = {
+      from_port   = 0
+      to_port     = 0
+      ip_protocol = "-1" # Allows all protocols outbound
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 }
