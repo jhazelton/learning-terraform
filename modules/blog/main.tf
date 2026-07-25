@@ -37,7 +37,7 @@ module "blog_autoscaling" {
   min_size            = var.asg_min
   max_size            = var.asg_max
   vpc_zone_identifier = module.blog_vpc.public_subnets
-  security_groups     = [module.blog_sg.security_group_id]
+  security_groups     = [module.blog_sg.id]
   instance_type       = var.instance_type
   image_id            = data.aws_ami.app_ami.id
 
@@ -56,7 +56,7 @@ module "blog_alb" {
   load_balancer_type = "application"
   vpc_id             = module.blog_vpc.vpc_id
   subnets            = module.blog_vpc.public_subnets
-  security_groups    = [module.blog_sg.security_group_id]
+  security_groups    = [module.blog_sg.id]
 
   # Modern v9 target group configuration (uses maps instead of lists)
   target_groups = {
