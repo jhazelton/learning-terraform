@@ -88,32 +88,46 @@ module "blog_alb" {
   }
 }
 
-module "blog_sg" {
-  source = "terraform-aws-modules/security-group/aws"
+module "blog_alb" {
+  source = "terraform-aws-modules/alb/aws"
 
-  vpc_id = module.blog_vpc.vpc_id
-  name   = "${var.environment.name}-blog"
+  name               = "${var.environment.name}-blog-alb"
+  load_balancer_type = "application"
+  internal           = false 
+  vpc_id             = module.blog_vpc.vpc_id
+  subnets            = module.blog_vpc.public_subnets
+  security_groups    = [module.blog_sg.id]
 
-  ingress_rules = {
-    https = {
-      from_port   = 443
-      to_port     = 443
-      ip_protocol = "tcp"
-      cidr_ipv4   = "0.0.0.0/0"
-    }
-    http = {
-      from_port   = 80
-      to_port     = 80
-      ip_protocol = "tcp"
-      cidr_ipv4   = "0.0.0.0/0"
+  target_groups = {
+    blog_tg = {
+      name_prefix       = "${var.environment.name}-"
+      backend_protocol  = "HTTP"
+      backend_port      = 80
+      target_type       = "instance"
+      create_attachment = false
+
+      # ADD THIS HEALTH CHECK BLOCK HERE:
+      health_check = {
+        enabled             = true
+        path                = "/" 
+        port                = "80"
+        protocol            = "HTTP"
+        healthy_threshold   = 2
+        unhealthy_threshold = 3
+        timeout             = 5
+        interval            = 20
+        matcher             = "200-499" # Widens success to include any code or missing page error
+      }
     }
   }
 
-  egress_rules = {
-    all = {
-      # DO NOT include from_port or to_port here
-      ip_protocol = "-1" # Pure unrestricted all-protocols layout
-      cidr_ipv4   = "0.0.0.0/0"
+  listeners = {
+    http = {
+      port     = 80
+      protocol = "HTTP"
+      forward = {
+        target_group_key = "blog_tg"
+      }
     }
   }
 }
