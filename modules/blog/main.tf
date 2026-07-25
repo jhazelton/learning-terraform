@@ -32,7 +32,6 @@ module "blog_vpc" {
 
 module "blog_autoscaling" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 7.0"  # <-- Downgraded to v7.x to support AWS Provider v5
 
   name                = "${var.environment.name}-blog"
   min_size            = var.asg_min
@@ -49,7 +48,6 @@ module "blog_autoscaling" {
 
 module "blog_alb" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "~> 9.0"
 
   name               = "${var.environment.name}-blog-alb"
   load_balancer_type = "application"
@@ -85,7 +83,6 @@ module "blog_alb" {
 
 module "blog_sg" {
   source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 6.0"
 
   vpc_id = module.blog_vpc.vpc_id
   name   = "${var.environment.name}-blog"
