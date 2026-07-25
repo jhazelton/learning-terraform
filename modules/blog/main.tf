@@ -65,6 +65,9 @@ module "blog_alb" {
       backend_protocol = "HTTP"
       backend_port     = 80
       target_type      = "instance"
+
+      # PUT THE FIX HERE INSIDE THE SUB-MODULE FILE:
+      create_attachment = false
     }
   }
 
