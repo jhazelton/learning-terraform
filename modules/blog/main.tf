@@ -15,6 +15,7 @@ data "aws_ami" "app_ami" {
 }
 
 
+
 module "blog_vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
