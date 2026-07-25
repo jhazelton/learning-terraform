@@ -94,17 +94,16 @@ module "blog_sg" {
   vpc_id = module.blog_vpc.vpc_id
   name   = "${var.environment.name}-blog"
 
-  # Official verified version 6 map format with explicit port matching boundaries
   ingress_rules = {
     https = {
       from_port   = 443
-      to_port     = 443 # <-- Explicitly required target boundary
+      to_port     = 443
       ip_protocol = "tcp"
       cidr_ipv4   = "0.0.0.0/0"
     }
     http = {
       from_port   = 80
-      to_port     = 80  # <-- Explicitly required target boundary
+      to_port     = 80
       ip_protocol = "tcp"
       cidr_ipv4   = "0.0.0.0/0"
     }
@@ -112,9 +111,8 @@ module "blog_sg" {
 
   egress_rules = {
     all = {
-      from_port   = 0
-      to_port     = 0
-      ip_protocol = "-1" # Allows all protocols outbound
+      # DO NOT include from_port or to_port here
+      ip_protocol = "-1" # Pure unrestricted all-protocols layout
       cidr_ipv4   = "0.0.0.0/0"
     }
   }
