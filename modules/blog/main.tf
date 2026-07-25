@@ -93,23 +93,25 @@ module "blog_sg" {
   vpc_id = module.blog_vpc.vpc_id
   name   = "${var.environment.name}-blog"
 
-  # The modern v6 format for inbound rules
   ingress_rules = {
     https = {
-      rule      = "https-443-tcp"
-      cidr_ipv4 = "0.0.0.0/0"
+      from_port   = 443
+      to_port     = 443
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
     }
     http = {
-      rule      = "http-80-tcp"
-      cidr_ipv4 = "0.0.0.0/0"
+      from_port   = 80
+      to_port     = 80
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 
-  # The modern v6 format for outbound rules
   egress_rules = {
     all = {
-      rule      = "all-all"
-      cidr_ipv4 = "0.0.0.0/0"
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
     }
   }
 }
