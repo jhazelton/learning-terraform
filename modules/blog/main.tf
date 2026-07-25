@@ -117,8 +117,6 @@ module "blog_sg" {
 
   egress_rules = {
     all = {
-      from_port   = 0
-      to_port     = 0
       ip_protocol = "-1" # Allows all protocols outbound
       cidr_ipv4   = "0.0.0.0/0"
     }
