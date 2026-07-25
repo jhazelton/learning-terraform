@@ -94,29 +94,26 @@ module "blog_sg" {
   vpc_id = module.blog_vpc.vpc_id
   name   = "${var.environment.name}-blog"
 
-  # CHANGE THIS PARAMETER NAME:
-  ingress_with_cidr_blocks = [
-    {
+  # Official modern mapping syntax for version 6.0.0+
+  ingress_rules = {
+    https = {
       from_port   = 443
       to_port     = 443
-      protocol    = "tcp"
-      cidr_blocks = "0.0.0.0/0"
-    },
-    {
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+    http = {
       from_port   = 80
       to_port     = 80
-      protocol    = "tcp"
-      cidr_blocks = "0.0.0.0/0"
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
     }
-  ]
+  }
 
-  # CHANGE THIS PARAMETER NAME:
-  egress_with_cidr_blocks = [
-    {
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = "0.0.0.0/0"
+  egress_rules = {
+    all = {
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
     }
-  ]
+  }
 }
