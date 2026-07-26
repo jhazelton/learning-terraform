@@ -42,6 +42,7 @@ module "blog_autoscaling" {
   instance_type       = var.instance_type
   image_id            = data.aws_ami.app_ami.id
 
+  # FORCE INSTANCE INITIALIZATION: Directly push an automated web server build script
   user_data = base64encode(<<-EOT
     #!/bin/bash
     sudo apt-get update -y
@@ -78,16 +79,17 @@ module "blog_alb" {
       target_type       = "instance"
       create_attachment = false
 
+      # Broaden the health check matcher parameters completely
       health_check = {
         enabled             = true
-        path                = "/" # Change this path if your app uses an implicit index suffix
-        port                = "80" # Update this string if your app runs on a custom port like "8080"
+        path                = "/"
+        port                = "80"
         protocol            = "HTTP"
-        healthy_threshold   = 2    # Minimizes the check sequence count
+        healthy_threshold   = 2
         unhealthy_threshold = 3
         timeout             = 5
         interval            = 20
-        matcher             = "200-499" # Forces acceptance of standard pages, redirects, and missing paths!
+        matcher             = "200-499" # Accept redirects, standard success, and 404s
       }
     }
   }
