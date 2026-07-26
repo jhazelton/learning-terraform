@@ -41,7 +41,6 @@ module "blog_autoscaling" {
   instance_type       = var.instance_type
   image_id            = data.aws_ami.app_ami.id
 
-  # Forces the security group directly onto the modern network layout layer
   security_groups = [module.blog_sg.id]
   network_interfaces = [
     {
@@ -51,11 +50,12 @@ module "blog_autoscaling" {
     }
   ]
 
-  # Inline script to guarantee a running Apache server on boot
+  # Suppresses Ubuntu's background prompt traps
   user_data = base64encode(<<-EOT
     #!/bin/bash
+    export DEBIAN_FRONTEND=noninteractive
     sudo apt-get update -y
-    sudo apt-get install -y apache2
+    sudo apt-get install -y -o Dpkg::Options::="--force-confold" apache2
     sudo systemctl start apache2
     sudo systemctl enable apache2
     echo "<h1>Terraform Learning Project Working Perfectly!</h1>" | sudo tee /var/www/html/index.html
