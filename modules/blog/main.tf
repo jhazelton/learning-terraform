@@ -53,8 +53,8 @@ module "blog_autoscaling" {
     }
   ]
 
-  # FIXED: Removed base64encode() so the module reads the raw bash script
-  user_data = <<-EOT
+  # FIXED: Re-added base64encode wrapper so AWS can parse it cleanly
+  user_data = base64encode(<<-EOT
     #!/bin/bash
     export DEBIAN_FRONTEND=noninteractive
     sudo apt-get update -y
@@ -63,6 +63,7 @@ module "blog_autoscaling" {
     sudo systemctl enable apache2
     echo "<h1>Terraform Learning Project Working Perfectly!</h1>" | sudo tee /var/www/html/index.html
   EOT
+  )
 
   traffic_source_attachments = {
     alb = {
