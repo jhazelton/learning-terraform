@@ -44,9 +44,9 @@ module "blog_autoscaling" {
   health_check_type         = "ELB"
   health_check_grace_period = 300
 
-  # REMOVED: top-level security_groups = [module.blog_sg.id]
+  # BRIDGES THE TRAFFIC PIPELINE: Directly binds the Auto Scaling Group to your ALB targets
+  target_group_arns = [module.blog_alb.target_groups["blog_tg"].arn]
 
-  # This is the correct, exclusive place to declare security groups for v8.x/9.x modules
   network_interfaces = [
     {
       delete_on_termination = true
