@@ -41,6 +41,10 @@ module "blog_autoscaling" {
   instance_type       = var.instance_type
   image_id            = data.aws_ami.app_ami.id
 
+  # FORCES THE AUTO SCALING POOL TO SYNC DIRECTLY WITH THE ALB STATUS:
+  health_check_type         = "ELB"
+  health_check_grace_period = 300 # Gives Ubuntu 5 minutes to install Apache silently
+
   security_groups = [module.blog_sg.id]
   network_interfaces = [
     {
@@ -50,7 +54,6 @@ module "blog_autoscaling" {
     }
   ]
 
-  # Suppresses Ubuntu's background prompt traps
   user_data = base64encode(<<-EOT
     #!/bin/bash
     export DEBIAN_FRONTEND=noninteractive
