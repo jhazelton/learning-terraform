@@ -32,7 +32,7 @@ module "blog_vpc" {
 }
 
 module "blog_autoscaling" {
-  source  = "terraform-aws-modules/autoscaling/aws"
+  source = "terraform-aws-modules/autoscaling/aws"
 
   name                = "${var.environment.name}-blog"
   min_size            = var.asg_min
@@ -41,6 +41,7 @@ module "blog_autoscaling" {
   security_groups     = [module.blog_sg.id]
   instance_type       = var.instance_type
   image_id            = data.aws_ami.app_ami.id
+  user_data           = filebase64("${path.module}/user_data.sh") # Change "user_data.sh" if your file has a different name like "web.sh"
 
   traffic_source_attachments = {
     alb = {
