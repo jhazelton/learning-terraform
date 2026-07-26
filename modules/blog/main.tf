@@ -41,7 +41,16 @@ module "blog_autoscaling" {
   security_groups     = [module.blog_sg.id]
   instance_type       = var.instance_type
   image_id            = data.aws_ami.app_ami.id
-  user_data           = filebase64("${path.module}/user_data.sh") # Change "user_data.sh" if your file has a different name like "web.sh"
+
+  user_data = base64encode(<<-EOT
+    #!/bin/bash
+    sudo apt-get update -y
+    sudo apt-get install -y apache2
+    sudo systemctl start apache2
+    sudo systemctl enable apache2
+    echo "<h1>Terraform Learning Project Working Perfectly!</h1>" | sudo tee /var/www/html/index.html
+  EOT
+  )
 
   traffic_source_attachments = {
     alb = {
