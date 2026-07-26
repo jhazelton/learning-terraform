@@ -55,11 +55,11 @@ module "blog_autoscaling" {
 
   user_data = base64encode(<<-EOT
     #!/bin/bash
-    export DEBIAN_FRONTEND=noninteractive
-    sudo apt-get update -y
-    sudo apt-get install -y -o Dpkg::Options::="--force-confold" apache2
-    sudo systemctl start apache2
-    sudo systemctl enable apache2
+    sudo yum update -y
+    sudo yum install -y httpd
+    sudo systemctl start httpd
+    sudo systemctl enable httpd
+    sudo mkdir -p /var/www/html
     echo "<h1>Terraform Learning Project Working Perfectly!</h1>" | sudo tee /var/www/html/index.html
   EOT
   )
