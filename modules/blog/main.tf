@@ -38,11 +38,20 @@ module "blog_autoscaling" {
   min_size            = var.asg_min
   max_size            = var.asg_max
   vpc_zone_identifier = module.blog_vpc.public_subnets
-  security_groups     = [module.blog_sg.id]
   instance_type       = var.instance_type
   image_id            = data.aws_ami.app_ami.id
 
-  # FORCE INSTANCE INITIALIZATION: Directly push an automated web server build script
+  # Forces the security group directly onto the modern network layout layer
+  security_groups = [module.blog_sg.id]
+  network_interfaces = [
+    {
+      delete_on_termination = true
+      device_index          = 0
+      security_groups       = [module.blog_sg.id]
+    }
+  ]
+
+  # Inline script to guarantee a running Apache server on boot
   user_data = base64encode(<<-EOT
     #!/bin/bash
     sudo apt-get update -y
