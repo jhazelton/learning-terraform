@@ -68,7 +68,6 @@ module "blog_alb" {
       target_type       = "instance"
       create_attachment = false
 
-      # 🛠️ INSERT THIS CLEAN MAPPING TO FORCE INSTANCES GREEN:
       health_check = {
         enabled             = true
         path                = "/" # Change this path if your app uses an implicit index suffix
