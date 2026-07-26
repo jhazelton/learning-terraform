@@ -44,7 +44,9 @@ module "blog_autoscaling" {
   health_check_type         = "ELB"
   health_check_grace_period = 300
 
-  security_groups = [module.blog_sg.id]
+  # REMOVED: top-level security_groups = [module.blog_sg.id]
+
+  # This is the correct, exclusive place to declare security groups for v8.x/9.x modules
   network_interfaces = [
     {
       delete_on_termination = true
@@ -53,7 +55,6 @@ module "blog_autoscaling" {
     }
   ]
 
-  # FIXED: Re-added base64encode wrapper so AWS can parse it cleanly
   user_data = base64encode(<<-EOT
     #!/bin/bash
     export DEBIAN_FRONTEND=noninteractive
