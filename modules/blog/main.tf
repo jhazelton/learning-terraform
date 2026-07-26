@@ -41,11 +41,9 @@ module "blog_autoscaling" {
   instance_type       = var.instance_type
   image_id            = data.aws_ami.app_ami.id
 
+  # Keeps the direct ALB monitoring checks intact
   health_check_type         = "ELB"
   health_check_grace_period = 300
-
-  # BRIDGES THE TRAFFIC PIPELINE: Directly binds the Auto Scaling Group to your ALB targets
-  target_group_arns = [module.blog_alb.target_groups["blog_tg"].arn]
 
   network_interfaces = [
     {
