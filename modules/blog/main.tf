@@ -41,9 +41,15 @@ module "blog_autoscaling" {
   instance_type       = var.instance_type
   image_id            = data.aws_ami.app_ami.id
 
-  # Keeps the direct ALB monitoring checks intact
   health_check_type         = "ELB"
   health_check_grace_period = 300
+
+  # 🛠️ ADD THIS LINE: Grants the server permission to announce its health status to AWS
+  create_iam_instance_profile = true
+  iam_role_name               = "${var.environment.name}-blog-asg-role"
+  iam_role_policies = {
+    AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  }
 
   network_interfaces = [
     {
@@ -53,10 +59,15 @@ module "blog_autoscaling" {
     }
   ]
 
+  # UPDATED USER_DATA: Configures the Amazon Linux local firewall rules
   user_data = base64encode(<<-EOT
     #!/bin/bash
     sudo yum update -y
-    sudo yum install -y httpd
+    sudo yum install -y httpd iptables
+    
+    # Unlocks port 80 inside the internal Linux OS firewall
+    sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+    
     sudo systemctl start httpd
     sudo systemctl enable httpd
     sudo mkdir -p /var/www/html
