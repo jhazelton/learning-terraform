@@ -44,11 +44,18 @@ module "blog_autoscaling" {
   health_check_type         = "ELB"
   health_check_grace_period = 300
 
-  # 🛠️ ADD THIS LINE: Grants the server permission to announce its health status to AWS
   create_iam_instance_profile = true
   iam_role_name               = "${var.environment.name}-blog-asg-role"
   iam_role_policies = {
     AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  }
+
+  # AMAZON LINUX 2023 REQUIREMENT: Allows the OS to process external health pings securely
+  metadata_options = {
+    http_endpoint               = "enabled"
+    http_tokens                 = "optional" # Allows legacy module scripts to report status
+    http_put_response_hop_limit = 1
+    instance_metadata_tags      = "enabled"
   }
 
   network_interfaces = [
@@ -59,19 +66,22 @@ module "blog_autoscaling" {
     }
   ]
 
-  # UPDATED USER_DATA: Configures the Amazon Linux local firewall rules
+  # FORCED ROOT INDEX CONFIGURATION: Standardizes the httpd endpoint mapping
   user_data = base64encode(<<-EOT
     #!/bin/bash
     sudo yum update -y
     sudo yum install -y httpd iptables
     
-    # Unlocks port 80 inside the internal Linux OS firewall
+    # Clean internal operating system firewall bindings
+    sudo iptables -F
     sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
     
-    sudo systemctl start httpd
-    sudo systemctl enable httpd
+    # Establish default root index before service launch
     sudo mkdir -p /var/www/html
     echo "<h1>Terraform Learning Project Working Perfectly!</h1>" | sudo tee /var/www/html/index.html
+    
+    sudo systemctl restart httpd
+    sudo systemctl enable httpd
   EOT
   )
 
