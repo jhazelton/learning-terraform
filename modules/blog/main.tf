@@ -29,6 +29,10 @@ module "blog_vpc" {
     Terraform = "true"
     Environment = var.environment.name
   }
+
+  # THE MISSING LINK: Forces AWS to give your instances a public routing address
+  map_public_ip_on_launch = true
+
   create_igw           = true
   enable_dns_hostnames = true
   enable_dns_support   = true
